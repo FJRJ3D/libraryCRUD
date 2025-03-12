@@ -1,11 +1,20 @@
 
+import 'dart:ffi';
+
 class Book {
+  int? _id;
   String? _name;
   String? _author;
   String? _description;
   int? _yearPublished;
 
-  Book(this._name, this._author, this._description, this._yearPublished);
+  Book(this._id, this._name, this._author, this._description, this._yearPublished);
+
+  int? get id => _id;
+
+  set id(int? value) {
+    _id = value;
+  }
 
   int? get yearPublished => _yearPublished;
 
