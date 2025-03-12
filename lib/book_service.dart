@@ -20,4 +20,15 @@ class Book_service {
     int index = bookList.indexWhere((book) => book.id == id);
     bookList[index] = updatedBook;
   }
+
+  String deleteBookById(int id) {
+    int initialLength = bookList.length;
+    bookList.removeWhere((book) => book.id == id);
+
+    if(bookList.length < initialLength){
+      return "Book deleted.";
+    }else{
+      return "Book not deleted.";
+    }
+  }
 }
