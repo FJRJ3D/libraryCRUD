@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:library_crud/BookListScreen.dart';
+import 'package:library_crud/inputs.dart';
 import 'package:library_crud/book_service.dart';
 
 void main() {
@@ -22,7 +23,26 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: BookListScreen(bookService: bookService),
+      home: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Library CRUD'),
+            bottom: TabBar(
+              tabs: [
+                Tab(text: "Book list"),
+                Tab(text: "Add book"),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              BookListScreen(bookService: bookService),
+              BookInputList(bookService: bookService),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
