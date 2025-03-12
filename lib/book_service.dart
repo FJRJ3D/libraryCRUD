@@ -9,4 +9,15 @@ class Book_service {
     bookList.add(book);
     return book;
   }
+
+  String deleteBookById(int id) {
+    int initialLength = bookList.length;
+    bookList.removeWhere((book) => book.id == id);
+
+    if(bookList.length < initialLength){
+      return "Book deleted.";
+    }else{
+      return "Book not deleted.";
+    }
+  }
 }
