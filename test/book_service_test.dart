@@ -33,5 +33,18 @@ void main() {
       expect(book?.description, equals("Description1"));
       expect(book?.yearPublished, equals(2001));
     });
+
+    test('updateBook should update the book details correctly', () {
+      final book = bookService.createBookAuto('Book1', 'Author1', 'Description1', 2001);
+      final updatedBook = Book(book.id!, 'UpdatedBook', 'UpdatedAuthor', 'UpdatedDescription', 2020);
+
+      bookService.updateBook(book.id!, updatedBook);
+      final retrievedBook = bookService.getBookById(book.id!);
+
+      expect(retrievedBook?.name, equals('UpdatedBook'));
+      expect(retrievedBook?.author, equals('UpdatedAuthor'));
+      expect(retrievedBook?.description, equals('UpdatedDescription'));
+      expect(retrievedBook?.yearPublished, equals(2020));
+    });
   });
 }
