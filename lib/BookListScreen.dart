@@ -33,17 +33,22 @@ class _BookListScreenState extends State<BookListScreen> {
                   Text("Author: ${book.author ?? "?"}"),
                   Text("Publication year: ${book.yearPublished?.toString() ?? "?"}"),
                   Text("Description: ${book.description ?? "?"}"),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        String result = widget.bookService.deleteBookById(book.id!);
-                        setState(() {});
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result)),
-                        );
-                      });
-                    },
-                    child: const Text("Delete"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            String result = widget.bookService.deleteBookById(book.id!);
+                            setState(() {});
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(result)),
+                            );
+                          });
+                        },
+                        child: const Text("Delete"),
+                      ),
+                    ],
                   ),
                 ],
               ),
