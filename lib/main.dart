@@ -1,9 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:library_crud/BookListScreen.dart';
 import 'package:library_crud/inputs.dart';
 import 'package:library_crud/book_service.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   final bookService = Book_service();
   // bookService.createBookAuto('Book1', 'Author1', 'Description1', 2001);
   // bookService.createBookAuto('Book2', 'Author2', 'Description2', 2002);
