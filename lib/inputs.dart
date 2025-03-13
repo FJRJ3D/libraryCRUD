@@ -1,4 +1,3 @@
-// book_input_list.dart
 import 'package:flutter/material.dart';
 import 'package:library_crud/book.dart';
 import 'package:library_crud/book_service.dart';
@@ -46,7 +45,6 @@ class _BookInputListState extends State<BookInputList> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Форма вводу книги
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -74,34 +72,6 @@ class _BookInputListState extends State<BookInputList> {
                   child: Text('Create book'),
                 ),
               ],
-            ),
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: widget.bookService.bookList.isEmpty
-                ? Text("List is empty")
-                : ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: widget.bookService.bookList.length,
-              itemBuilder: (context, index) {
-                final book = widget.bookService.bookList[index];
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    title: Text(book.name ?? "Book name"),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Author: ${book.author ?? "?"}"),
-                        Text("Year: ${book.yearPublished?.toString() ?? "?"}"),
-                        Text("Description: ${book.description ?? ""}"),
-                      ],
-                    ),
-                  ),
-                );
-              },
             ),
           ),
         ],
