@@ -37,7 +37,10 @@ class _BookListScreenState extends State<BookListScreen> {
                     onPressed: () {
                       setState(() {
                         String result = widget.bookService.deleteBookById(book.id!);
-                        print(result);
+                        setState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result)),
+                        );
                       });
                     },
                     child: const Text("Delete"),
