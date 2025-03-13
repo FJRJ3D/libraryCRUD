@@ -1,40 +1,28 @@
-
 class Book {
-  int? _id;
-  String? _name;
-  String? _author;
-  String? _description;
-  int? _yearPublished;
+  String? id;
+  String? name;
+  String? author;
+  String? description;
+  int? yearPublished;
 
-  Book(this._id, this._name, this._author, this._description, this._yearPublished);
+  Book({this.id, this.name, this.author, this.description, this.yearPublished});
 
-  int? get yearPublished => _yearPublished;
-
-  set yearPublished(int? value) {
-    _yearPublished = value;
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'author': author,
+      'description': description,
+      'yearPublished': yearPublished,
+    };
   }
 
-  int? get id => _id;
-
-  set id(int? value) {
-    _id = value;
-  }
-
-  String? get description => _description;
-
-  set description(String? value) {
-    _description = value;
-  }
-
-  String? get author => _author;
-
-  set author(String? value) {
-    _author = value;
-  }
-
-  String? get name => _name;
-
-  set name(String? value) {
-    _name = value;
+  factory Book.fromMap(Map<String, dynamic> map, {String? id}) {
+    return Book(
+      id: id,
+      name: map['name'],
+      author: map['author'],
+      description: map['description'],
+      yearPublished: map['yearPublished'],
+    );
   }
 }

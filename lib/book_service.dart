@@ -1,36 +1,68 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:library_crud/book.dart';
 
 class Book_service {
-  List<Book> bookList = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference _booksCollection = FirebaseFirestore.instance.collection('books');
 
-  Book createBookAuto(String? name, String? author, String? description, int? yearPublished) {
-    int newId = bookList.isEmpty ? 1 : bookList.last.id! + 1;
-    Book book = Book(newId, name, author, description, yearPublished);
-    bookList.add(book);
-    return book;
+  Future<Book> createBookAuto(String? name, String? author, String? description, int? yearPublished) async {
+    DocumentReference docRef = await _booksCollection.add({
+      'name': name,
+      'author': author,
+      'description': description,
+      'yearPublished': yearPublished,
+    });
+
+    return Book(
+      id: docRef.id,
+      name: name,
+      author: author,
+      description: description,
+      yearPublished: yearPublished,
+    );
   }
 
-  Book? getBookById(int id) {
+  Future<Book?> getBookById(String id) async {
     try {
-      return bookList.firstWhere(
-            (book) => book.id == id,
-        orElse: () => throw Exception("Book not found"),
-      );
+      DocumentSnapshot doc = await _booksCollection.doc(id).get();
+      if (doc.exists) {
+        return Book.fromMap(doc.data() as Map<String, dynamic>, id: doc.id);
+      } else {
+        return null;
+      }
     } catch (e) {
+      print('Error al obtener el libro: $e');
       return null;
     }
   }
 
-  void updateBook(int id, Book updatedBook) {
-    int index = bookList.indexWhere((book) => book.id == id);
-    if (index != -1) {
-      bookList[index] = updatedBook;
+  Future<void> updateBook(String id, Book updatedBook) async {
+    try {
+      await _booksCollection.doc(id).update(updatedBook.toMap());
+      print('Libro actualizado correctamente');
+    } catch (e) {
+      print('Error al actualizar el libro: $e');
     }
   }
 
-  String deleteBookById(int id) {
-    int initialLength = bookList.length;
-    bookList.removeWhere((book) => book.id == id);
-    return bookList.length < initialLength ? "Book deleted." : "Book not deleted.";
+  Future<String> deleteBookById(String id) async {
+    try {
+      await _booksCollection.doc(id).delete();
+      return "Libro eliminado.";
+    } catch (e) {
+      return "Error al eliminar el libro: $e";
+    }
+  }
+
+  Future<List<Book>> getAllBooks() async {
+    try {
+      QuerySnapshot querySnapshot = await _booksCollection.get();
+      return querySnapshot.docs
+          .map((doc) => Book.fromMap(doc.data() as Map<String, dynamic>, id: doc.id))
+          .toList();
+    } catch (e) {
+      print('Error al obtener los libros: $e');
+      return [];
+    }
   }
 }

@@ -29,7 +29,7 @@ class _BookInputListState extends State<BookInputList> {
     }
   }
 
-  void _createOrUpdateBook() {
+  Future<void> _createOrUpdateBook() async {
     final String name = _nameController.text.trim();
     final String author = _authorController.text.trim();
     final String description = _descriptionController.text.trim();
@@ -37,30 +37,28 @@ class _BookInputListState extends State<BookInputList> {
 
     if (name.isEmpty || author.isEmpty || description.isEmpty || yearPublished == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please, fill in all fields')),
+        const SnackBar(content: Text('Please, fill in all fields')),
       );
       return;
     }
 
     if (widget.existingBook != null) {
       final updatedBook = Book(
-        widget.existingBook!.id,
-        name,
-        author,
-        description,
-        yearPublished,
+        id: widget.existingBook!.id,
+        name: name,
+        author: author,
+        description: description,
+        yearPublished: yearPublished,
       );
-
-      widget.bookService.updateBook(widget.existingBook!.id!, updatedBook);
+      await widget.bookService.updateBook(widget.existingBook!.id!, updatedBook);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Book updated: ${updatedBook.name}')),
       );
     } else {
-      final newBook = widget.bookService.createBookAuto(name, author, description, yearPublished);
+      final newBook = await widget.bookService.createBookAuto(name, author, description, yearPublished);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Book created: ${newBook.name}')),
       );
-
       _nameController.clear();
       _authorController.clear();
       _descriptionController.clear();
@@ -85,22 +83,22 @@ class _BookInputListState extends State<BookInputList> {
             children: [
               TextField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Book name'),
+                decoration: const InputDecoration(labelText: 'Book name'),
               ),
               TextField(
                 controller: _authorController,
-                decoration: InputDecoration(labelText: 'Author'),
+                decoration: const InputDecoration(labelText: 'Author'),
               ),
               TextField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
               ),
               TextField(
                 controller: _yearController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Published year'),
+                decoration: const InputDecoration(labelText: 'Published year'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _createOrUpdateBook,
                 child: Text(widget.existingBook != null ? 'Update Book' : 'Create Book'),

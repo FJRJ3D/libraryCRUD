@@ -13,15 +13,15 @@ class BookListScreen extends StatefulWidget {
 }
 
 class _BookListScreenState extends State<BookListScreen> {
-  void _updateBook(BuildContext context, int bookId) {
-    final bookToUpdate = widget.bookService.getBookById(bookId);
+  Future<void> _updateBook(BuildContext context, String bookId) async {
+    Book? bookToUpdate = await widget.bookService.getBookById(bookId);
     if (bookToUpdate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: Book not found')),
+        const SnackBar(content: Text('Error: Book not found')),
       );
       return;
     }
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BookInputList(
@@ -29,18 +29,16 @@ class _BookListScreenState extends State<BookListScreen> {
           existingBook: bookToUpdate,
         ),
       ),
-    ).then((_) {
-      setState(() {});
-    });
+    );
+    setState(() {}); // refrescar lista tras la actualización
   }
 
-  void _deleteBook(int bookId) {
-    setState(() {
-      String result = widget.bookService.deleteBookById(bookId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result)),
-      );
-    });
+  Future<void> _deleteBook(String bookId) async {
+    String result = await widget.bookService.deleteBookById(bookId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result)),
+    );
+    setState(() {}); // refrescar lista tras la eliminación
   }
 
   @override
@@ -49,38 +47,51 @@ class _BookListScreenState extends State<BookListScreen> {
       appBar: AppBar(
         title: const Text("Books list"),
       ),
-      body: widget.bookService.bookList.isEmpty
-          ? const Center(child: Text("The list of books is empty"))
-          : ListView.builder(
-        itemCount: widget.bookService.bookList.length,
-        itemBuilder: (context, index) {
-          final book = widget.bookService.bookList[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: ListTile(
-              title: Text(book.name ?? "?"),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Author: ${book.author ?? "?"}"),
-                  Text("Publication year: ${book.yearPublished?.toString() ?? "?"}"),
-                  Text("Description: ${book.description ?? "?"}"),
-                ],
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () => _updateBook(context, book.id!),
+      body: FutureBuilder<List<Book>>(
+        future: widget.bookService.getAllBooks(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          List<Book>? books = snapshot.data;
+          if (books == null || books.isEmpty) {
+            return const Center(child: Text("The list of books is empty"));
+          }
+          return ListView.builder(
+            itemCount: books.length,
+            itemBuilder: (context, index) {
+              final book = books[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: ListTile(
+                  title: Text(book.name ?? "?"),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Author: ${book.author ?? "?"}"),
+                      Text("Publication year: ${book.yearPublished?.toString() ?? "?"}"),
+                      Text("Description: ${book.description ?? "?"}"),
+                    ],
                   ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteBook(book.id!),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _updateBook(context, book.id!),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteBook(book.id!),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
