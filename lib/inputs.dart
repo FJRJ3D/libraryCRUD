@@ -43,7 +43,6 @@ class _BookInputListState extends State<BookInputList> {
     }
 
     if (widget.existingBook != null) {
-      // Оновлення книги
       final updatedBook = Book(
         widget.existingBook!.id,
         name,
@@ -57,13 +56,11 @@ class _BookInputListState extends State<BookInputList> {
         SnackBar(content: Text('Book updated: ${updatedBook.name}')),
       );
     } else {
-      // Створення нової книги
       final newBook = widget.bookService.createBookAuto(name, author, description, yearPublished);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Book created: ${newBook.name}')),
       );
 
-      // Очистка полів після створення
       _nameController.clear();
       _authorController.clear();
       _descriptionController.clear();

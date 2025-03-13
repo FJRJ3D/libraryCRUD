@@ -30,7 +30,7 @@ class _BookListScreenState extends State<BookListScreen> {
         ),
       ),
     ).then((_) {
-      setState(() {}); // Оновлюємо список після повернення
+      setState(() {});
     });
   }
 
