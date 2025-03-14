@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:library_crud/book_service.dart';
 import 'package:library_crud/book.dart';
 import 'package:library_crud/inputs.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BookListScreen extends StatefulWidget {
   final Book_service bookService;
@@ -13,6 +14,8 @@ class BookListScreen extends StatefulWidget {
 }
 
 class _BookListScreenState extends State<BookListScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   Future<void> _updateBook(BuildContext context, String bookId) async {
     Book? bookToUpdate = await widget.bookService.getBookById(bookId);
     if (bookToUpdate == null) {
@@ -30,7 +33,7 @@ class _BookListScreenState extends State<BookListScreen> {
         ),
       ),
     );
-    setState(() {}); // refrescar lista tras la actualización
+    setState(() {});
   }
 
   Future<void> _deleteBook(String bookId) async {
@@ -38,7 +41,20 @@ class _BookListScreenState extends State<BookListScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(result)),
     );
-    setState(() {}); // refrescar lista tras la eliminación
+    setState(() {});
+  }
+
+  Future<void> _reserveBook(String bookId) async {
+    String result = await widget.bookService.reserveBook(bookId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result)),
+    );
+    setState(() {});
+  }
+
+  Future<String?> _getUserUID() async {
+    User? user = _auth.currentUser;
+    return user?.uid;
   }
 
   @override
@@ -60,36 +76,56 @@ class _BookListScreenState extends State<BookListScreen> {
           if (books == null || books.isEmpty) {
             return const Center(child: Text("The list of books is empty"));
           }
-          return ListView.builder(
-            itemCount: books.length,
-            itemBuilder: (context, index) {
-              final book = books[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(book.name ?? "?"),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Author: ${book.author ?? "?"}"),
-                      Text("Publication year: ${book.yearPublished?.toString() ?? "?"}"),
-                      Text("Description: ${book.description ?? "?"}"),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () => _updateBook(context, book.id!),
+
+          return FutureBuilder<String?>(
+            future: _getUserUID(),
+            builder: (context, userSnapshot) {
+              if (userSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              String? userUID = userSnapshot.data;
+
+              return ListView.builder(
+                itemCount: books.length,
+                itemBuilder: (context, index) {
+                  final book = books[index];
+
+                  bool isUserBook = book.userUID == userUID;
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    color: isUserBook ? Colors.white54 : Colors.white30,
+                    child: ListTile(
+                      title: Text(book.name ?? "?"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Author: ${book.author ?? "?"}"),
+                          Text("Publication year: ${book.yearPublished?.toString() ?? "?"}"),
+                          Text("Description: ${book.description ?? "?"}"),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteBook(book.id!),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _updateBook(context, book.id!),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteBook(book.id!),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.read_more, color: Colors.amber),
+                            onPressed: () => _reserveBook(book.id!),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           );
